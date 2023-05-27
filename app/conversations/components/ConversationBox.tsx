@@ -7,7 +7,7 @@ import clsx from 'clsx'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useMemo } from 'react'
-import { format } from 'util'
+import { format } from 'date-fns'
 
 interface ConversationBoxProps {
   data : FullConversationType 
@@ -85,7 +85,7 @@ const ConversationBox: React.FC<ConversationBoxProps> = ({
       {/* Chat Column */}
       <div className="min-w-0 flex-1">
         <div className="focus:outline-none">
-          <div className="flex flex-between items-center mb-1">
+          <div className="flex justify-between items-center mb-1">
 
             {/* User Name */}
             <p className='text-md font-medium text-gray-900'>
@@ -95,7 +95,7 @@ const ConversationBox: React.FC<ConversationBoxProps> = ({
             {/* Message Send Time */}
             {lastMessage?.createdAt && (
               <p className='text-xs text-gray-400 font-light'>
-                {format(new Date(), 'p')}
+                {format(new Date(lastMessage?.createdAt), 'p')}
               </p>
             )}
           </div>
