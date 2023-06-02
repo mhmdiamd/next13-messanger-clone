@@ -1,5 +1,6 @@
 import getCurrentUser from "@/app/actions/getCurrentUser"
 import prisma from "@/app/libs/prismadb"
+import { pusherServer } from "@/app/libs/pusher"
 import { NextResponse } from "next/server"
 
 interface IProps {
@@ -46,7 +47,7 @@ export async function POST(request: Request,
     }
 
     // Updte seen last message if last message is exists
-    const updateMessage = await prisma.message.update({
+    const updatedMessage = await prisma.message.update({
       where: {
         id: lastMessage.id
       },
@@ -59,8 +60,21 @@ export async function POST(request: Request,
       }
     })
 
+    // update seen in conversation
+    await pusherServer.trigger(currentUser.email, "conversation:update", {
+      id: conversationId,
+      messages:[updatedMessage]
+    })
 
-    return NextResponse.json(updateMessage)
+    // check Seen status
+    if(lastMessage.seenIds.indexOf(currentUser.id) !== -1){
+      return NextResponse.json(conversation)
+    }
+
+    await pusherServer.trigger(conversationId!, "messages:update", updatedMessage)
+
+
+    return NextResponse.json(updatedMessage)
 
   } catch (err: any) {
     console.log(err)

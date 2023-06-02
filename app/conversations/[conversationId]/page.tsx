@@ -11,7 +11,6 @@ interface IProps {
 }
 
 const ConversationId = async ({ params }: { params: IProps }) => {
-  console.log(params)
   const conversation = await getConversationById(params?.conversationId)
   const messages = await getMessages(params?.conversationId)
 

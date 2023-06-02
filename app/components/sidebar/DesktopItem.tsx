@@ -26,7 +26,7 @@ const DesktopItem: React.FC<DesktopItemInterface> = ({
   }
 
   return (
-    <Link href={href} className={clsx(`
+    <Link onClick={handleClick} href={href} className={clsx(`
       group
       flex
       gap-x-3

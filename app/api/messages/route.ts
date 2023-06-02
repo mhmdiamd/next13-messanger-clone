@@ -1,5 +1,6 @@
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
+import { pusherServer } from "@/app/libs/pusher";
 import { NextResponse } from "next/server";
 
 export async function POST(request : Request) {
@@ -41,7 +42,7 @@ export async function POST(request : Request) {
       }
     })
 
-    const updateConversation = await prisma.conversation.update({
+    const updatedConversation = await prisma.conversation.update({
       where: {
         id: conversationId
       },
@@ -62,6 +63,21 @@ export async function POST(request : Request) {
         }
       }
     })
+
+    // triger to pusherClient every have new Messages
+    await pusherServer.trigger(conversationId, "messages:new", newMessage)
+
+    // Get last message 
+    const lastMessage = updatedConversation.messages[updatedConversation.messages.length - 1]
+
+    // Triger to every user for udpated the last message
+    updatedConversation.users.map(user => {
+      pusherServer.trigger(user.email!, "conversation:update", {
+        id: conversationId,
+        message: [lastMessage]
+      })
+    })
+    
 
     return NextResponse.json(newMessage)
   }catch(err){

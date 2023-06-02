@@ -8,6 +8,7 @@ import React, { Fragment, useMemo, useState } from 'react'
 import { IoClose, IoTrash } from 'react-icons/io5'
 import ConfirmModal from './ConfirmModal'
 import Avatar from '@/app/components/Avatar'
+import AvatarGroup from '@/app/components/AvatarGroup'
 
 interface ProfileDrawerProps {
   data: Conversation & {
@@ -27,7 +28,7 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
 
   const joinedDate = useMemo(() => {
     return format(new Date(otherUser?.createdAt), 'PP')
-  }, [otherUser.createdAt])
+  }, [otherUser?.createdAt])
 
   const title = useMemo(() => {
     return data.name || otherUser.name
@@ -119,9 +120,13 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
                       ">
                         {/* Other User Information  */}
                         <div className="flex flex-col items-center">
-                          {/* Other User Avatar  */}
+                          {/* Other User or Group Chat Avatar  */}
                           <div className="mb-2">
-                            <Avatar user={otherUser}/>
+                            {data?.isGroup ? (
+                              <AvatarGroup users={data?.users} />
+                            ) : (
+                              <Avatar user={otherUser}/>
+                            )}
                           </div>
 
                           {/* Other User Name */}
@@ -175,7 +180,19 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
                                 </div>
                               )}
 
-                              {!data.isGroup} {
+                              {data.isGroup && (
+                                <div>
+                                  <dt className='text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0'>
+                                    Emails
+                                  </dt>
+
+                                  <dd className="text-sm mt-1 text-gray-900 sm:col-span-2">
+                                    {data?.users?.map(user => user.email).join(", ")}
+                                  </dd>
+                                </div>
+                              )}
+
+                              {!data?.isGroup && (
                                 <>
                                   <hr />
                                   <div>
@@ -189,7 +206,7 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
                                     </dd>
                                   </div>
                                 </>
-                              }
+                              )}
                             </dl>
                           </div>
                         </div>
